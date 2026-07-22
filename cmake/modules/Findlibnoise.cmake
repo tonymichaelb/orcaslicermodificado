@@ -1,6 +1,6 @@
-find_path(LIBNOISE_INCLUDE_DIR libnoise/noise.h)
-find_library(LIBNOISE_LIBRARY_RELEASE NAMES libnoise libnoise_static liblibnoise_static)
-find_library(LIBNOISE_LIBRARY_DEBUG NAMES libnoised libnoise_staticd liblibnoise_staticd)
+find_path(LIBNOISE_INCLUDE_DIR libnoise/noise.h PATH_SUFFIXES include PATHS ${CMAKE_PREFIX_PATH})
+find_library(LIBNOISE_LIBRARY_RELEASE NAMES libnoise libnoise_static liblibnoise_static PATH_SUFFIXES lib lib64 PATHS ${CMAKE_PREFIX_PATH})
+find_library(LIBNOISE_LIBRARY_DEBUG NAMES libnoised libnoise_staticd liblibnoise_staticd PATH_SUFFIXES lib lib64 PATHS ${CMAKE_PREFIX_PATH})
 
 set(libnoise_LIB_FOUND FALSE)
 if (LIBNOISE_LIBRARY_RELEASE OR LIBNOISE_LIBRARY_DEBUG)

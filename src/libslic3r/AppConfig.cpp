@@ -120,6 +120,13 @@ void AppConfig::set_defaults()
         if (get("auto_slice_change_delay_seconds").empty())
             set("auto_slice_change_delay_seconds", "1");
 
+        // Keep the 3D view usable on integrated and entry-level GPUs. Users who
+        // prefer maximum visual quality may opt back into multisampling in the
+        // preferences. This is an application setting, so it never affects the
+        // generated toolpaths or saved projects.
+        if (get("reduce_gpu_usage").empty())
+            set_bool("reduce_gpu_usage", true);
+
         if (get("drop_project_action").empty())
             set_bool("drop_project_action", true);
 

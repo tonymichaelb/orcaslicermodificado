@@ -85,7 +85,7 @@ int ZUserLogin::ensure_loopback_port()
 }
 
 ZUserLogin::ZUserLogin(std::shared_ptr<ICloudServiceAgent> cloud_agent)
-    : wxDialog((wxWindow*) (wxGetApp().mainframe), wxID_ANY, "OrcaSlicer"), m_cloud_agent(cloud_agent)
+    : wxDialog((wxWindow*) (wxGetApp().mainframe), wxID_ANY, "Cromalors"), m_cloud_agent(cloud_agent)
 {
     SetBackgroundColour(*wxWHITE);
 
@@ -96,7 +96,7 @@ ZUserLogin::ZUserLogin(std::shared_ptr<ICloudServiceAgent> cloud_agent)
         m_sizer_main->Add(m_line_top, 0, wxEXPAND, 0);
 
         auto* m_message = new wxStaticText(this, wxID_ANY,
-                                          _L("Cloud agent is not available. Please restart OrcaSlicer and try again."),
+                                          _L("Cloud agent is not available. Please restart Cromalors and try again."),
                                           wxDefaultPosition, wxDefaultSize, 0);
         m_message->SetForegroundColour(*wxBLACK);
         m_message->Wrap(FromDIP(360));
@@ -157,8 +157,10 @@ ZUserLogin::ZUserLogin(std::shared_ptr<ICloudServiceAgent> cloud_agent)
             wxLogError("Could not init m_browser");
             return;
         }
-        m_browser->Hide();
-        m_browser->SetSize(0, 0);
+
+        auto* m_sizer_main = new wxBoxSizer(wxVERTICAL);
+        m_sizer_main->Add(m_browser, 1, wxEXPAND, 0);
+        SetSizer(m_sizer_main);
 
         // Connect the webview events
         Bind(wxEVT_WEBVIEW_NAVIGATING, &ZUserLogin::OnNavigationRequest, this, m_browser->GetId());
@@ -181,6 +183,7 @@ ZUserLogin::ZUserLogin(std::shared_ptr<ICloudServiceAgent> cloud_agent)
         int     MaxY         = (screenheight - pSize.y) > 0 ? (screenheight - pSize.y) / 2 : 0;
         wxPoint tmpPT((screenwidth - pSize.x) / 2, MaxY);
         Move(tmpPT);
+        Layout();
     }
     wxGetApp().UpdateDlgDarkUI(this);
 }
@@ -278,6 +281,9 @@ void ZUserLogin::OnDocumentLoaded(wxWebViewEvent &evt)
 
     if (tmpUrl.StartsWith("file://") || tmpUrl.Contains(strHost)) {
         m_networkOk = true;
+        if (m_cloud_agent) {
+            CallAfter([this] { send_login_config_to_page(); });
+        }
         // wxLogMessage("%s", "Document loaded; url='" + evt.GetURL() + "'");
     }
 
@@ -323,47 +329,7 @@ void ZUserLogin::OnScriptMessage(wxWebViewEvent &evt)
         wxString strCmd = j["command"];
         
         if (m_cloud_agent && strCmd == "get_login_cmd") {
-            // Return login config (backend_url, apikey, pkce)
-            // WebView handles provider selection internally
-            std::string login_cmd = m_cloud_agent->build_login_cmd();
-            m_loopback_port       = 0;
-            try {
-                json cfg = json::parse(login_cmd);
-                if (cfg.contains("pkce")) {
-                    const auto& pkce = cfg["pkce"];
-                    if (pkce.contains("loopback_port")) {
-                        if (pkce["loopback_port"].is_number_integer()) {
-                            m_loopback_port = pkce["loopback_port"].get<int>();
-                        } else if (pkce["loopback_port"].is_string()) {
-                            m_loopback_port = std::stoi(pkce["loopback_port"].get<std::string>());
-                        }
-                    }
-
-                    if (m_loopback_port <= 0 && pkce.contains("redirect_uri") && pkce["redirect_uri"].is_string()) {
-                        const std::string redirect_uri = pkce["redirect_uri"].get<std::string>();
-                        const char*       prefixes[]   = {"localhost:", "127.0.0.1:"};
-                        for (const char* prefix : prefixes) {
-                            auto start = redirect_uri.find(prefix);
-                            if (start == std::string::npos)
-                                continue;
-                            start += strlen(prefix);
-                            auto        end      = redirect_uri.find('/', start);
-                            std::string port_str = redirect_uri.substr(start, end - start);
-                            try {
-                                m_loopback_port = std::stoi(port_str);
-                            } catch (...) {
-                                m_loopback_port = 0;
-                            }
-                            break;
-                        }
-                    }
-                }
-            } catch (...) {
-                m_loopback_port = 0;
-            }
-            wxString str_js = wxString::FromUTF8("window.postMessage(") + wxString::FromUTF8(login_cmd.c_str()) +
-                              wxString::FromUTF8(", '*')");
-            this->RunScript(str_js);
+            send_login_config_to_page();
             return;
         }
 
@@ -424,6 +390,56 @@ void ZUserLogin::OnScriptMessage(wxWebViewEvent &evt)
     }
 }
 
+void ZUserLogin::send_login_config_to_page()
+{
+    if (!m_cloud_agent || !m_browser)
+        return;
+
+    // Return login config (backend_url, apikey, pkce). The login page also
+    // asks for this via window.wx, but pushing it after document load covers
+    // WebView backends where the script message handler is late.
+    std::string login_cmd = m_cloud_agent->build_login_cmd();
+    m_loopback_port       = 0;
+    try {
+        json cfg = json::parse(login_cmd);
+        if (cfg.contains("pkce")) {
+            const auto& pkce = cfg["pkce"];
+            if (pkce.contains("loopback_port")) {
+                if (pkce["loopback_port"].is_number_integer()) {
+                    m_loopback_port = pkce["loopback_port"].get<int>();
+                } else if (pkce["loopback_port"].is_string()) {
+                    m_loopback_port = std::stoi(pkce["loopback_port"].get<std::string>());
+                }
+            }
+
+            if (m_loopback_port <= 0 && pkce.contains("redirect_uri") && pkce["redirect_uri"].is_string()) {
+                const std::string redirect_uri = pkce["redirect_uri"].get<std::string>();
+                const char*       prefixes[]   = {"localhost:", "127.0.0.1:"};
+                for (const char* prefix : prefixes) {
+                    auto start = redirect_uri.find(prefix);
+                    if (start == std::string::npos)
+                        continue;
+                    start += strlen(prefix);
+                    auto        end      = redirect_uri.find('/', start);
+                    std::string port_str = redirect_uri.substr(start, end - start);
+                    try {
+                        m_loopback_port = std::stoi(port_str);
+                    } catch (...) {
+                        m_loopback_port = 0;
+                    }
+                    break;
+                }
+            }
+        }
+    } catch (...) {
+        m_loopback_port = 0;
+    }
+
+    wxString str_js = wxString::FromUTF8("window.postMessage(") + wxString::FromUTF8(login_cmd.c_str()) +
+                      wxString::FromUTF8(", '*')");
+    RunScript(str_js);
+}
+
 void ZUserLogin::RunScript(const wxString &javascript)
 {
     // Remember the script we run in any case, so the next time the user opens
@@ -480,8 +496,7 @@ void ZUserLogin::OnError(wxWebViewEvent &evt)
         WX_ERROR_CASE(wxWEBVIEW_NAV_ERR_OTHER);
     }
 
-    if( evt.GetInt()==wxWEBVIEW_NAV_ERR_CONNECTION )
-    {
+    if (evt.GetInt() != wxWEBVIEW_NAV_ERR_USER_CANCELLED) {
         if(m_timer!=NULL)
             m_timer->Stop();
 
@@ -512,8 +527,30 @@ void ZUserLogin::OnScriptResponseMessage(wxCommandEvent &WXUNUSED(evt))
 
 bool  ZUserLogin::ShowErrorPage()
 {
-    wxString ErrortUrl = from_u8((boost::filesystem::path(resources_dir()) / "web\\login\\error.html").make_preferred().string());
-    load_url(ErrortUrl);
+    if (!m_browser)
+        return false;
+
+    wxString safe_url = TargetUrl;
+    safe_url.Replace("&", "&amp;");
+    safe_url.Replace("\"", "&quot;");
+
+    wxString html = wxString::Format(
+        "<!doctype html><html><head><meta charset=\"utf-8\">"
+        "<style>"
+        "body{margin:0;background:#25262b;color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}"
+        ".wrap{padding:36px;max-width:540px;}"
+        "h1{font-size:24px;margin:0 0 12px;}"
+        "p{font-size:15px;line-height:1.5;color:#d5d5d8;}"
+        ".url{margin-top:18px;padding:12px;border:1px solid #3d3f46;border-radius:6px;color:#bfc2c9;word-break:break-all;}"
+        "</style></head><body><div class=\"wrap\">"
+        "<h1>ChromaColors Cloud</h1>"
+        "<p>Nao foi possivel carregar a pagina de login. Verifique a conexao e tente abrir a tela novamente.</p>"
+        "<p class=\"url\">%s</p>"
+        "</div></body></html>",
+        safe_url);
+    m_browser->SetPage(html, TargetUrl);
+    m_browser->Show();
+    Layout();
 
     return true;
 }

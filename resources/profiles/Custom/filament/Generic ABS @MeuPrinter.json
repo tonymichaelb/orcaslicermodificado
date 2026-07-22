@@ -1,0 +1,39 @@
+{
+	"type": "filament",
+	"name": "Generic ABS @MeuPrinter",
+	"inherits": "Generic ABS @System",
+	"from": "system",
+	"setting_id": "GFL97_MEUPRINTER_0",
+	"filament_id": "GFL97",
+	"instantiation": "true",
+	"filament_cooling_final_speed": [
+		"2.5"
+	],
+	"filament_cooling_initial_speed": [
+		"6"
+	],
+	"filament_cooling_moves": [
+		"2"
+	],
+	"filament_load_time": [
+		"11.0"
+	],
+	"filament_loading_speed": [
+		"8"
+	],
+	"filament_loading_speed_start": [
+		"40"
+	],
+	"filament_unload_time": [
+		"9.0"
+	],
+	"filament_unloading_speed": [
+		"100"
+	],
+	"compatible_printers": [
+		"MeuPrinter 0.4 nozzle",
+		"MeuPrinter 0.2 nozzle",
+		"MeuPrinter 0.6 nozzle",
+		"MeuPrinter 0.8 nozzle"
+	]
+}

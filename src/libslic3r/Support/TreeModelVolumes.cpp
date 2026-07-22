@@ -109,7 +109,9 @@ TreeModelVolumes::TreeModelVolumes(
         size_t num_raft_layers = m_raft_layers.size();
         size_t num_layers = print_object.layer_count() + num_raft_layers;
         outlines.assign(num_layers, Polygons{});
-        tbb::parallel_for(tbb::blocked_range<size_t>(num_raft_layers, num_layers, std::min<size_t>(1, std::max<size_t>(16, num_layers / (8 * tbb::this_task_arena::max_concurrency())))),
+        const size_t concurrency = std::max<size_t>(1, tbb::this_task_arena::max_concurrency());
+        const size_t grain_size  = std::max<size_t>(1, std::min<size_t>(16, num_layers / (8 * concurrency)));
+        tbb::parallel_for(tbb::blocked_range<size_t>(num_raft_layers, num_layers, grain_size),
             [&](const tbb::blocked_range<size_t> &range) {
             for (size_t layer_idx = range.begin(); layer_idx < range.end(); ++ layer_idx)
                 outlines[layer_idx] = polygons_simplify(to_polygons(print_object.get_layer(layer_idx - num_raft_layers)->lslices), mesh_settings.resolution, polygons_strictly_simple);
@@ -119,7 +121,7 @@ TreeModelVolumes::TreeModelVolumes(
 
     m_support_rests_on_model = false;
     m_min_resolution  = std::numeric_limits<coord_t>::max();
-    for (auto data_pair : m_layer_outlines) {
+    for (const auto &data_pair : m_layer_outlines) {
         m_support_rests_on_model |= ! data_pair.first.support_material_buildplate_only;
         m_min_resolution = std::min(m_min_resolution, data_pair.first.resolution);
     }

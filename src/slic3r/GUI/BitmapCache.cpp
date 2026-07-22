@@ -244,8 +244,14 @@ wxBitmap* BitmapCache::load_png(const std::string &bitmap_name, unsigned width, 
         return it->second;
 
     wxImage image;
-    if (! image.LoadFile(Slic3r::GUI::from_u8(Slic3r::var(bitmap_name + ".png")), wxBITMAP_TYPE_PNG) ||
-        image.GetWidth() == 0 || image.GetHeight() == 0)
+    // Try PNG first, then fall back to JPEG for auto-detection of actual format
+    if (! image.LoadFile(Slic3r::GUI::from_u8(Slic3r::var(bitmap_name + ".png")), wxBITMAP_TYPE_PNG) &&
+        ! image.LoadFile(Slic3r::GUI::from_u8(Slic3r::var(bitmap_name + ".png")), wxBITMAP_TYPE_JPEG) &&
+        ! image.LoadFile(Slic3r::GUI::from_u8(Slic3r::var(bitmap_name + ".jpg")), wxBITMAP_TYPE_JPEG)) {
+        return nullptr;
+    }
+    
+    if (image.GetWidth() == 0 || image.GetHeight() == 0)
         return nullptr;
 
     if (height == 0 && width == 0)
@@ -267,7 +273,7 @@ wxBitmap* BitmapCache::load_png(const std::string &bitmap_name, unsigned width, 
     if (grayscale)
         image = image.ConvertToGreyscale(m_gs, m_gs, m_gs);
 
-    return this->insert(bitmap_key, wxImage_to_wxBitmap_with_alpha(std::move(image)));
+    return this->insert(bitmap_key, wxImage_to_wxBitmap_with_alpha(std::move(image), m_scale));
 }
 
 NSVGimage* BitmapCache::nsvgParseFromFileWithReplace(const char* filename, const char* units, float dpi, const std::map<std::string, std::string>& replaces)

@@ -171,7 +171,7 @@ function build_deps() {
 }
 
 function pack_deps() {
-    echo "Packing deps..."
+    echo "Packing Chromacolors deps..."
     (
         set -x
         cd "$DEPS_DIR"
@@ -187,7 +187,7 @@ function build_slicer() {
 
             PROJECT_BUILD_DIR="$PROJECT_DIR/build/$_ARCH"
             DEPS_BUILD_DIR="$DEPS_DIR/build/$_ARCH"
-            DEPS="$DEPS_BUILD_DIR/OrcaSlicer_dep"
+            DEPS="$DEPS_BUILD_DIR/Chromacolors_dep"
 
             echo "Building slicer for $_ARCH..."
             (
@@ -207,7 +207,7 @@ function build_slicer() {
                     ${CMAKE_POLICY_COMPAT}
             fi
             cmake --build . --config "$BUILD_CONFIG" --target "$SLICER_BUILD_TARGET"
-        )
+            )
 
         if [ "1." == "$BUILD_TESTS". ]; then
             echo "Running tests for $_ARCH..."
@@ -227,31 +227,31 @@ function build_slicer() {
         echo "Fix macOS app package..."
         (
             cd "$PROJECT_BUILD_DIR"
-            mkdir -p OrcaSlicer
-            cd OrcaSlicer
+            mkdir -p Chromacolors
+            cd Chromacolors
             # remove previously built app
-            rm -rf ./OrcaSlicer.app
+            rm -rf ./Chromacolors.app
             # fully copy newly built app
-            cp -pR "../src$BUILD_DIR_CONFIG_SUBDIR/OrcaSlicer.app" ./OrcaSlicer.app
+            cp -pR "../src$BUILD_DIR_CONFIG_SUBDIR/Chromacolors.app" ./Chromacolors.app
             # fix resources
-            resources_path=$(readlink ./OrcaSlicer.app/Contents/Resources)
-            rm ./OrcaSlicer.app/Contents/Resources
-            cp -R "$resources_path" ./OrcaSlicer.app/Contents/Resources
+            resources_path=$(readlink ./Chromacolors.app/Contents/Resources)
+            rm ./Chromacolors.app/Contents/Resources
+            cp -R "$resources_path" ./Chromacolors.app/Contents/Resources
             # delete .DS_Store file
-            find ./OrcaSlicer.app/ -name '.DS_Store' -delete
+            find ./Chromacolors.app/ -name '.DS_Store' -delete
             
             # Copy OrcaSlicer_profile_validator.app if it exists
-            if [ -f "../src$BUILD_DIR_CONFIG_SUBDIR/OrcaSlicer_profile_validator.app/Contents/MacOS/OrcaSlicer_profile_validator" ]; then
-                echo "Copying OrcaSlicer_profile_validator.app..."
-                rm -rf ./OrcaSlicer_profile_validator.app
-                cp -pR "../src$BUILD_DIR_CONFIG_SUBDIR/OrcaSlicer_profile_validator.app" ./OrcaSlicer_profile_validator.app
+            if [ -f "../src$BUILD_DIR_CONFIG_SUBDIR/Chromacolors_profile_validator.app/Contents/MacOS/Chromacolors_profile_validator" ]; then
+                echo "Copying Chromacolors_profile_validator.app..."
+                rm -rf ./Chromacolors_profile_validator.app
+                cp -pR "../src$BUILD_DIR_CONFIG_SUBDIR/Chromacolors_profile_validator.app" ./Chromacolors_profile_validator.app
                 # delete .DS_Store file
-                find ./OrcaSlicer_profile_validator.app/ -name '.DS_Store' -delete
+                find ./Chromacolors_profile_validator.app/ -name '.DS_Store' -delete
             fi
         )
 
         # extract version
-        # export ver=$(grep '^#define SoftFever_VERSION' ../src/libslic3r/libslic3r_version.h | cut -d ' ' -f3)
+        # export ver=$(grep '^#define Chromacolors_VERSION' ../src/libslic3r/libslic3r_version.h | cut -d ' ' -f3)
         # ver="_V${ver//\"}"
         # echo $PWD
         # if [ "1." != "$NIGHTLY_BUILD". ];
@@ -259,7 +259,7 @@ function build_slicer() {
         #     ver=${ver}_dev
         # fi
 
-        # zip -FSr OrcaSlicer${ver}_Mac_${_ARCH}.zip OrcaSlicer.app
+        # zip -FSr Chromacolors${ver}_Mac_${_ARCH}.zip Chromacolors.app
 
     fi
     done
@@ -291,28 +291,28 @@ function build_universal() {
     echo "Building universal binary..."
 
     PROJECT_BUILD_DIR="$PROJECT_DIR/build/$ARCH"
-    ARM64_APP="$PROJECT_DIR/build/arm64/OrcaSlicer/OrcaSlicer.app"
-    X86_64_APP="$PROJECT_DIR/build/x86_64/OrcaSlicer/OrcaSlicer.app"
+    ARM64_APP="$PROJECT_DIR/build/arm64/Chromacolors/Chromacolors.app"
+    X86_64_APP="$PROJECT_DIR/build/x86_64/Chromacolors/Chromacolors.app"
 
-    mkdir -p "$PROJECT_BUILD_DIR/OrcaSlicer"
-    UNIVERSAL_APP="$PROJECT_BUILD_DIR/OrcaSlicer/OrcaSlicer.app"
+    mkdir -p "$PROJECT_BUILD_DIR/Chromacolors"
+    UNIVERSAL_APP="$PROJECT_BUILD_DIR/Chromacolors/Chromacolors.app"
     rm -rf "$UNIVERSAL_APP"
     cp -R "$ARM64_APP" "$UNIVERSAL_APP"
 
-    echo "Creating universal binaries for OrcaSlicer.app..."
+    echo "Creating universal binaries for Chromacolors.app..."
     lipo_dir "$UNIVERSAL_APP" "$X86_64_APP"
-    echo "Universal OrcaSlicer.app created at $UNIVERSAL_APP"
+    echo "Universal Chromacolors.app created at $UNIVERSAL_APP"
 
     # Create universal binary for profile validator if it exists
-    ARM64_VALIDATOR="$PROJECT_DIR/build/arm64/OrcaSlicer/OrcaSlicer_profile_validator.app"
-    X86_64_VALIDATOR="$PROJECT_DIR/build/x86_64/OrcaSlicer/OrcaSlicer_profile_validator.app"
+    ARM64_VALIDATOR="$PROJECT_DIR/build/arm64/Chromacolors/Chromacolors_profile_validator.app"
+    X86_64_VALIDATOR="$PROJECT_DIR/build/x86_64/Chromacolors/Chromacolors_profile_validator.app"
     if [ -d "$ARM64_VALIDATOR" ] && [ -d "$X86_64_VALIDATOR" ]; then
-        echo "Creating universal binaries for OrcaSlicer_profile_validator.app..."
-        UNIVERSAL_VALIDATOR_APP="$PROJECT_BUILD_DIR/OrcaSlicer/OrcaSlicer_profile_validator.app"
+        echo "Creating universal binaries for Chromacolors_profile_validator.app..."
+        UNIVERSAL_VALIDATOR_APP="$PROJECT_BUILD_DIR/Chromacolors/Chromacolors_profile_validator.app"
         rm -rf "$UNIVERSAL_VALIDATOR_APP"
         cp -R "$ARM64_VALIDATOR" "$UNIVERSAL_VALIDATOR_APP"
         lipo_dir "$UNIVERSAL_VALIDATOR_APP" "$X86_64_VALIDATOR"
-        echo "Universal OrcaSlicer_profile_validator.app created at $UNIVERSAL_VALIDATOR_APP"
+        echo "Universal Chromacolors_profile_validator.app created at $UNIVERSAL_VALIDATOR_APP"
     fi
 }
 

@@ -88,6 +88,7 @@ private:
 
     std::shared_ptr<ICloudServiceAgent> m_cloud_agent;
     int ensure_loopback_port();
+    void send_login_config_to_page();
 
     DECLARE_EVENT_TABLE()
 };

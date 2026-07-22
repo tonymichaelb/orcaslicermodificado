@@ -1,0 +1,7 @@
+{
+	"type": "machine",
+	"name": "MeuPrinter 0.4 nozzle",
+	"from_model": "MeuPrinter",
+	"nozzle_diameter": "0.4",
+	"instantiation": "true"
+}

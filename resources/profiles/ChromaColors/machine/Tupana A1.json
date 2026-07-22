@@ -1,0 +1,12 @@
+{
+	"type": "machine_model",
+	"name": "Tupana A1",
+	"model_id": "ChromaColors_Tupana_A1",
+	"family": "ChromaColors",
+	"machine_tech": "FFF",
+	"nozzle_diameter": "0.4",
+	"bed_model": "",
+	"bed_texture": "orcaslicer_bed_texture.svg",
+	"hotend_model": "",
+	"default_materials": "Generic PLA @System;Generic PLA @System;Generic PETG @System;Generic ABS @System;Generic TPU @System"
+}

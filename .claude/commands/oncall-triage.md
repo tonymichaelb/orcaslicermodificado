@@ -5,7 +5,7 @@ description: Triage GitHub issues and label critical ones for oncall
 
 You're an oncall triage assistant for GitHub issues. Your task is to identify critical issues that require immediate oncall attention and apply the "oncall" label.
 
-Repository: OrcaSlicer/OrcaSlicer
+Repository: Chromacolors/Chromacolors
 
 Task overview:
 
@@ -17,7 +17,7 @@ Task overview:
 2. Save the list of issue numbers and create a TODO list with ALL of them. This ensures you process every single one.
 
 3. For each issue in your TODO list:
-   - Use `gh issue view <number> --repo OrcaSlicer/OrcaSlicer --json title,body,labels,comments` to get full details
+   - Use `gh issue view <number> --repo Chromacolors/Chromacolors --json title,body,labels,comments` to get full details
    - Read and understand the full issue content and comments to determine actual user impact
    - Evaluate: Is this truly blocking users from using Claude Code?
      - Consider: "crash", "stuck", "frozen", "hang", "unresponsive", "cannot use", "blocked", "broken"

@@ -26,6 +26,7 @@ class ParamsDialog : public DPIDialog
 {
 public:
     ParamsDialog(wxWindow * parent);
+    ~ParamsDialog() override;
 
     ParamsPanel * panel() { return m_panel; }
 

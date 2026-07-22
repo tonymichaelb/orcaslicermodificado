@@ -1,0 +1,64 @@
+{
+	"type": "color_mixing",
+	"name": "PLA Multi-Color Mix",
+	"description": "Multi-color printing configuration for PLA filaments",
+	"compatible_printers": [
+		"MeuPrinter 0.4 nozzle"
+	],
+	"mixes": [
+		{
+			"id": "mix_001",
+			"name": "Red-Yellow Gradient",
+			"filaments": [
+				"Generic PLA @MeuPrinter",
+				"Generic PETG @MeuPrinter"
+			],
+			"percentages": [50.0, 50.0],
+			"purge_tower": {
+				"enabled": true,
+				"length_mm": 150.0,
+				"width_mm": 50.0,
+				"height_mm": 10.0
+			},
+			"transition": {
+				"length_mm": 75.0,
+				"speed_mm_per_s": 30.0,
+				"smoothing": true,
+				"smoothing_strength": 0.5
+			},
+			"nozzle_temp_celsius": 210,
+			"bed_temp_celsius": 60
+		},
+		{
+			"id": "mix_002",
+			"name": "Tri-Color Mix",
+			"filaments": [
+				"Generic PLA @MeuPrinter",
+				"Generic PETG @MeuPrinter",
+				"Generic ABS @MeuPrinter"
+			],
+			"percentages": [33.33, 33.33, 33.34],
+			"purge_tower": {
+				"enabled": true,
+				"length_mm": 200.0,
+				"width_mm": 60.0,
+				"height_mm": 15.0
+			},
+			"transition": {
+				"length_mm": 100.0,
+				"speed_mm_per_s": 25.0,
+				"smoothing": true,
+				"smoothing_strength": 0.7
+			},
+			"nozzle_temp_celsius": 220,
+			"bed_temp_celsius": 65
+		}
+	],
+	"global_settings": {
+		"default_purge_tower_enabled": true,
+		"default_purge_length_mm": 150.0,
+		"default_transition_length_mm": 75.0,
+		"default_smoothing_enabled": true,
+		"color_change_strategy": "linear_transition"
+	}
+}

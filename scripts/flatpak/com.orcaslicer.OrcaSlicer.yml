@@ -1,4 +1,4 @@
-app-id: com.orcaslicer.OrcaSlicer
+app-id: com.chromacolors.Chromacolors
 runtime: org.gnome.Platform
 runtime-version: "49"
 sdk: org.gnome.Sdk
@@ -6,7 +6,7 @@ sdk-extensions:
   - org.freedesktop.Sdk.Extension.llvm21
 command: entrypoint
 separate-locales: true
-rename-icon: OrcaSlicer
+rename-icon: Chromacolors
 build-options:
   append-path: /usr/lib/sdk/llvm21/bin
   prepend-ld-library-path: /usr/lib/sdk/llvm21/lib
@@ -27,9 +27,9 @@ finish-args:
   - --filesystem=/run/spnav.sock:ro
   # Allow read-only access to OrcaSlicer's legacy config and cache directories (if they exist) for migration purposes.
   - --filesystem=~/.var/app/io.github.orcaslicer.OrcaSlicer:ro
-  # Allow OrcaSlicer to own and talk to instance-check D-Bus names (InstanceCheck.cpp)
-  - --talk-name=com.orcaslicer.OrcaSlicer.InstanceCheck.*
-  - --own-name=com.orcaslicer.OrcaSlicer.InstanceCheck.*
+  # Allow Chromacolors to own and talk to instance-check D-Bus names (InstanceCheck.cpp)
+  - --talk-name=com.chromacolors.Chromacolors.InstanceCheck.*
+  - --own-name=com.chromacolors.Chromacolors.InstanceCheck.*
   - --system-talk-name=org.freedesktop.UDisks2
   - --env=SPNAV_SOCKET=/run/spnav.sock
 
@@ -318,7 +318,7 @@ modules:
           -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld" \
           -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" \
           -DCMAKE_MODULE_LINKER_FLAGS="-fuse-ld=lld"
-      - cmake --build build_flatpak --target OrcaSlicer -j$FLATPAK_BUILDER_N_JOBS
+      - cmake --build build_flatpak --target Chromacolors -j$FLATPAK_BUILDER_N_JOBS
       - ./scripts/run_gettext.sh
       - cmake --build build_flatpak --target install -j$FLATPAK_BUILDER_N_JOBS
 
@@ -328,7 +328,7 @@ modules:
     post-install:
 
       - | # Desktop integration files
-        install -Dm644 -t /app/share/icons/hicolor/scalable/apps/ resources/images/OrcaSlicer.svg
+        install -Dm644 -t /app/share/icons/hicolor/scalable/apps/ resources/images/Chromacolors.svg
         install -Dm644 ${FLATPAK_ID}.metainfo.xml /app/share/metainfo/${FLATPAK_ID}.metainfo.xml
         desktop-file-edit --set-key=Exec --set-value="entrypoint %U" /app/share/applications/${FLATPAK_ID}.desktop
         install -Dm755 entrypoint /app/bin
@@ -338,8 +338,8 @@ modules:
 
       - | # Install fonts into fontconfig-scanned directory so Pango finds them
         # before initialization (avoids ensure_faces crash from AddPrivateFont)
-        install -Dm644 -t /app/share/fonts/OrcaSlicer/ resources/fonts/*.ttf
-        fc-cache -f /app/share/fonts/OrcaSlicer/
+        install -Dm644 -t /app/share/fonts/Chromacolors/ resources/fonts/*.ttf
+        fc-cache -f /app/share/fonts/Chromacolors/
 
     sources:
       # OrcaSlicer source tree (specific dirs to avoid copying .git from worktree)
@@ -371,7 +371,7 @@ modules:
 
       # AppData metainfo for GNOME Software & Co.
       - type: file
-        path: com.orcaslicer.OrcaSlicer.metainfo.xml
+        path: com.chromacolors.Chromacolors.metainfo.xml
 
       # Startup script
       - type: file

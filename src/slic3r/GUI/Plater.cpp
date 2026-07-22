@@ -9561,7 +9561,7 @@ void Plater::priv::on_select_preset(wxCommandEvent &evt)
                 }
             }
             if (cloud_url.empty())
-                cloud_url = "https://cloud.orcaslicer.com";
+                cloud_url = "https://claud.chromacolor.shop";
 
             std::string explore_url = cloud_url + "/app/bundles/explore?printers=" + encoded_name;
 
@@ -10713,7 +10713,7 @@ void Plater::priv::set_project_name(const wxString& project_name)
     if (!m_project_name.IsEmpty())
         wxGetApp().mainframe->update_title_colour_after_set_title();
 #else
-    wxGetApp().mainframe->SetTitle(m_project_name + " - OrcaSlicer");
+    wxGetApp().mainframe->SetTitle(m_project_name + " - " + wxString(SLIC3R_APP_FULL_NAME));
     wxGetApp().mainframe->topbar()->SetTitle(m_project_name);
 #endif
 }
@@ -10733,7 +10733,7 @@ void Plater::priv::update_title_dirty_status()
     wxGetApp().mainframe->SetTitle(title);
     wxGetApp().mainframe->update_title_colour_after_set_title();
 #else
-    wxGetApp().mainframe->SetTitle(title + " - OrcaSlicer");
+    wxGetApp().mainframe->SetTitle(title + " - " + wxString(SLIC3R_APP_FULL_NAME));
     wxGetApp().mainframe->topbar()->SetTitle(title);
 #endif    
 }
@@ -13924,7 +13924,7 @@ ProjectDropDialog::ProjectDropDialog(const std::string &filename)
     SetBackgroundColour(m_def_color);
 
     // icon
-    std::string icon_path = (boost::format("%1%/images/OrcaSlicerTitle.ico") % resources_dir()).str();
+    std::string icon_path = (boost::format("%1%/images/ChromacolorsTitle.ico") % resources_dir()).str();
     SetIcon(wxIcon(encode_path(icon_path.c_str()), wxBITMAP_TYPE_ICO));
 
     wxBoxSizer *m_sizer_main = new wxBoxSizer(wxVERTICAL);

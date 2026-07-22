@@ -27,6 +27,7 @@ ParamsDialog::ParamsDialog(wxWindow * parent)
 
 	Layout();
 	Center();
+#ifndef __WXOSX__
     Bind(wxEVT_SHOW, [this](auto &event) {
         if (IsShown()) {
             m_winDisabler = new wxWindowDisabler(this);
@@ -35,6 +36,7 @@ ParamsDialog::ParamsDialog(wxWindow * parent)
             m_winDisabler = nullptr;
         }
     });
+#endif
 	Bind(wxEVT_CLOSE_WINDOW, [this](auto& event) {
 #if 0
 		auto tab = dynamic_cast<Tab *>(m_panel->get_current_tab());
@@ -63,6 +65,12 @@ ParamsDialog::ParamsDialog(wxWindow * parent)
     });
 
     //wxGetApp().UpdateDlgDarkUI(this);
+}
+
+ParamsDialog::~ParamsDialog()
+{
+    delete m_winDisabler;
+    m_winDisabler = nullptr;
 }
 
 void ParamsDialog::Popup()

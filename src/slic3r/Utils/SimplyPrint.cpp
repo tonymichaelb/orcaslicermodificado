@@ -193,7 +193,7 @@ bool SimplyPrint::do_api_call(std::function<Http(bool)>                         
     bool res = true;
 
     const auto create_request = [this, &build_request, &res, &on_complete](const std::string& access_token, bool is_retry) {
-        auto http = build_request(is_retry);
+        Http http = build_request(is_retry);
         set_auth(http, access_token);
         http.header("User-Agent", "SimplyPrint Orca Plugin")
             .on_complete([&](std::string body, unsigned http_status) {
@@ -480,7 +480,7 @@ bool SimplyPrint::upload(PrintHostUpload upload_data, ProgressFn prorgess_fn, Er
     }
     const auto filename = upload_data.upload_path.filename().string();
 
-    if (boost::filesystem::file_size(upload_data.source_path) > MAX_SINGLE_UPLOAD_FILE_SIZE) {
+    if (boost::filesystem::file_size(upload_data.source_path) > MAX_SINGLE_UPLOAD_FILE_SIZE) { // Max file size that can be uploaded in a single http request
         // If file is over 100 MB, do chunk upload
         return do_chunk_upload(upload_data.source_path, filename, prorgess_fn, error_fn);
     } else {

@@ -75,10 +75,10 @@
 			<div class="BtnIcon "><img class="LeftIcon" src="img/i2.png" /></div>
 			<div class="trans" tid="t28">recent</div> 
 		</div>
-	    <div class="BtnItem BtnShortcut" onClick="OpenUrlInLocalBrowser('https://cloud.orcaslicer.com')">
+	    <div menu="cloud" class="BtnItem BtnShortcut" onClick="GotoMenu('cloud')">
 			<div class="BtnIcon "><img class="ShortcutBrandIcon" src="../image/logo.png" /></div>
 			<div class="ShortcutTextRow">
-				<div>OrcaCloud</div>
+				<div>Cromacolors Cloud</div>
 				<svg class="ShortcutMark" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 					<path d="M6 3.5H3.5C2.95 3.5 2.5 3.95 2.5 4.5V12.5C2.5 13.05 2.95 13.5 3.5 13.5H11.5C12.05 13.5 12.5 13.05 12.5 12.5V10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
 					<path d="M8.5 3.5H13.5V8.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
@@ -215,6 +215,66 @@
 	
 </div>
 
+<div id="CloudBoard" class="ZScrol" board="cloud" style="display:none">
+	<div class="CloudHeader">
+		<div>
+			<div class="CloudTitle">Cromacolors Cloud</div>
+			<div id="CloudSubtitle" class="CloudSubtitle">Entre na sua conta para sincronizar perfis, projetos e impressoras.</div>
+		</div>
+		<div id="CloudStatus" class="CloudStatus offline">Offline</div>
+	</div>
+
+	<div class="CloudActions">
+		<div class="CloudActionPrimary" onClick="OnOrcaLoginOrRegister()">Entrar / Cadastrar</div>
+		<div class="CloudAction" onClick="OnOrcaLogOut()">Sair</div>
+		<div class="CloudAction" onClick="SendMsg_GetOrcaLoginInfo()">Atualizar</div>
+	</div>
+
+	<div class="CloudGrid">
+		<div class="CloudPanel">
+			<div class="CloudPanelTitle">Perfil</div>
+			<div id="CloudProfileName" class="CloudPanelValue">Nao conectado</div>
+			<div class="CloudPanelText">Conta, avatar e sessao do usuario.</div>
+			<div class="CloudPanelButton" onClick="OnOrcaLoginOrRegister()">Abrir login</div>
+		</div>
+
+		<div class="CloudPanel">
+			<div class="CloudPanelTitle">Sincronizacao</div>
+			<div class="CloudPanelValue">Perfis</div>
+			<div class="CloudPanelText">Perfis pessoais e configuracoes ficam salvos no servidor.</div>
+			<div class="CloudPanelButton" onClick="SendMsg_GetOrcaLoginInfo()">Verificar conta</div>
+		</div>
+
+		<div class="CloudPanel">
+			<div class="CloudPanelTitle">Projetos</div>
+			<div class="CloudPanelValue">3MF</div>
+			<div class="CloudPanelText">Area preparada para salvar e listar projetos na Cloud.</div>
+			<div class="CloudPanelButton" onClick="OnClickOpenProject()">Abrir projeto</div>
+		</div>
+
+		<div class="CloudPanel">
+			<div class="CloudPanelTitle">Impressoras</div>
+			<div class="CloudPanelValue">Dispositivos</div>
+			<div class="CloudPanelText">Area preparada para registrar e listar impressoras.</div>
+			<div class="CloudPanelButton" onClick="GotoMenu('cloud')">Ver painel</div>
+		</div>
+
+		<div class="CloudPanel">
+			<div class="CloudPanelTitle">Preferencias</div>
+			<div class="CloudPanelValue">Usuario</div>
+			<div class="CloudPanelText">Preferencias de conta e dados pessoais no servidor.</div>
+			<div class="CloudPanelButton" onClick="SendMsg_GetOrcaLoginInfo()">Atualizar</div>
+		</div>
+
+		<div class="CloudPanel">
+			<div class="CloudPanelTitle">Conta</div>
+			<div class="CloudPanelValue">Seguranca</div>
+			<div class="CloudPanelText">Login, logout, token e sessao do ChromaColors Cloud.</div>
+			<div class="CloudPanelButton danger" onClick="OnOrcaLogOut()">Sair da conta</div>
+		</div>
+	</div>
+</div>
+
 </div>	
 </body>
 <script type="text/javascript">
@@ -249,10 +309,6 @@
 
 </script>
 </html>
-
-
-
-
 
 
 

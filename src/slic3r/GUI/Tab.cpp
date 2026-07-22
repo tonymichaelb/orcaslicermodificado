@@ -1,6 +1,7 @@
 // #include "libslic3r/GCodeSender.hpp"
 //#include "slic3r/Utils/Serial.hpp"
 #include "Tab.hpp"
+#include "ColorMixing.hpp"
 #include "PresetHints.hpp"
 #include "libslic3r/PresetBundle.hpp"
 #include "libslic3r/PrintConfig.hpp"
@@ -4026,6 +4027,70 @@ void TabFilament::build()
         line.append_option(optgroup->get_option("complete_print_exhaust_fan_speed"));
         line.label_path = "material_cooling#complete-print";
         optgroup->append_line(line);
+
+    // ORCA: Color Mixing Tab
+    page = add_options_page(L("Mistura"), "custom-gcode_multi_material");
+        optgroup = page->new_optgroup(L("Mistura de Cores"), L"param_multi_material", 0);
+        optgroup->label_width = 0;
+        
+        line = { "", "" };
+        line.full_width = 1;
+        line.widget = [this](wxWindow* parent) {
+            auto color_mixing_panel = new ColorMixingPanel(parent, wxID_ANY, [this, parent](int a, int b, int c, const wxColour& mixed_colour, const std::vector<int>& percentages, double flow_ratio) {
+                auto remove_existing_m182 = [](const std::string& gcode) {
+                    std::string result;
+                    size_t pos = 0;
+                    while (pos <= gcode.size()) {
+                        const size_t end = gcode.find('\n', pos);
+                        const std::string line = gcode.substr(pos, end == std::string::npos ? std::string::npos : end - pos);
+                        const size_t first = line.find_first_not_of(" \t\r");
+                        const bool is_m182 = first != std::string::npos && line.compare(first, 4, "M182") == 0;
+                        if (!is_m182) {
+                            result += line;
+                            if (end != std::string::npos)
+                                result += '\n';
+                        }
+                        if (end == std::string::npos)
+                            break;
+                        pos = end + 1;
+                    }
+                    while (!result.empty() && (result.back() == '\n' || result.back() == '\r'))
+                        result.pop_back();
+                    return result;
+                };
+
+                std::vector<std::string> values;
+                if (auto* opt = m_config->option<ConfigOptionStrings>("filament_start_gcode"))
+                    values = opt->values;
+                if (values.empty())
+                    values.emplace_back();
+
+                const int p_a = percentages.size() > 0 ? percentages[0] : 0;
+                const int p_b = percentages.size() > 1 ? percentages[1] : 0;
+                const int p_c = percentages.size() > 2 ? percentages[2] : 0;
+                const std::string command = "M182 A" + std::to_string(p_a) + " B" + std::to_string(p_b) + " C" + std::to_string(p_c);
+                values[0] = remove_existing_m182(values[0]);
+                if (!values[0].empty())
+                    values[0] += '\n';
+                values[0] += command;
+
+                const std::string colour = into_u8(mixed_colour.GetAsString(wxC2S_HTML_SYNTAX));
+                const std::string quantities = "Quantidade: A" + std::to_string(a) + " B" + std::to_string(b) + " C" + std::to_string(c);
+                const std::string mix_result = "Fluxo final: A" + std::to_string(p_a) + "% B" + std::to_string(p_b) + "% C" + std::to_string(p_c) + "%";
+                const std::string flow_value = "Flow Ratio final: " + into_u8(double_to_string(flow_ratio, 3));
+
+                load_key_value("filament_start_gcode", values[0]);
+                load_key_value("filament_flow_ratio", flow_ratio);
+                load_key_value("default_filament_colour", colour);
+                wxMessageBox(wxString::FromUTF8("Filament Start G-code atualizado:\n" + quantities + "\n" + mix_result + "\n" + flow_value + "\n" + command + "\n\nDefault color atualizado: " + colour),
+                             _L("Mistura de materiais"), wxOK | wxICON_INFORMATION, parent);
+            });
+            auto sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(color_mixing_panel, 1, wxEXPAND);
+            return sizer;
+        };
+        optgroup->append_line(line);
+
         //BBS
         add_filament_overrides_page();
         const int gcode_field_height = 15; // 150

@@ -47,11 +47,11 @@ using json = nlohmann::json;
 namespace Slic3r {
 
 namespace {
-constexpr const char* ORCA_DEFAULT_API_URL = "api.orcaslicer.com";
-constexpr const char* ORCA_DEFAULT_AUTH_URL = "https://auth.orcaslicer.com";
-constexpr const char* ORCA_DEFAULT_CLOUD_URL = "https://cloud.orcaslicer.com";
-// Orca: This is a public key with no secret, used to identify the client application to the backend.
-constexpr const char* ORCA_DEFAULT_PUB_KEY = "sb_publishable_lvVe_whOi80SU9BPSxM1kA_tbt9AbR_";
+constexpr const char* ORCA_DEFAULT_API_URL = "claud.chromacolor.shop";
+constexpr const char* ORCA_DEFAULT_AUTH_URL = "https://claud.chromacolor.shop";
+constexpr const char* ORCA_DEFAULT_CLOUD_URL = "https://claud.chromacolor.shop";
+// Public client key with no secret, used to identify the client application to the backend.
+constexpr const char* ORCA_DEFAULT_PUB_KEY = "cromacolors_publishable_key";
 
 constexpr const char* ORCA_HEALTH_PATH = "/api/v1/health";
 constexpr const char* ORCA_SYNC_PULL_PATH = "/api/v1/sync/pull";
@@ -63,16 +63,29 @@ constexpr const char* ORCA_SYNC_STATE_FILE = "sync_state";
 constexpr const char* ORCA_SYNC_PROFILE_TABLE = "profiles";
 constexpr size_t ORCA_SYNC_MAX_PAYLOAD_SIZE = 1048576; // 1MB size limit
 
-constexpr const char* ORCA_CLOUD_LOGIN_PATH = "/orcaslicer-login";
+constexpr const char* ORCA_CLOUD_LOGIN_PATH = "/cromacolors-login";
 
 constexpr const char* CONFIG_ORCA_API_URL = "orca_api_url";
 constexpr const char* CONFIG_ORCA_AUTH_URL = "orca_auth_url";
 constexpr const char* CONFIG_ORCA_CLOUD_URL = "orca_cloud_url";
 constexpr const char* CONFIG_ORCA_PUB_KEY = "orca_pub_key";
+constexpr const char* CONFIG_CROMACOLORS_API_URL = "cromacolors_api_url";
+constexpr const char* CONFIG_CROMACOLORS_AUTH_URL = "cromacolors_auth_url";
+constexpr const char* CONFIG_CROMACOLORS_CLOUD_URL = "cromacolors_cloud_url";
+constexpr const char* CONFIG_CROMACOLORS_PUB_KEY = "cromacolors_pub_key";
 
-constexpr const char* SECRET_STORE_SERVICE = "OrcaSlicer/Auth";
-constexpr const char* SECRET_STORE_USER    = "orca_refresh_token";
+constexpr const char* SECRET_STORE_SERVICE = "Cromacolors/Auth";
+constexpr const char* SECRET_STORE_USER    = "cromacolors_refresh_token";
 constexpr std::chrono::seconds TOKEN_REFRESH_SKEW{900}; // 15 minutes
+
+std::string config_value(AppConfig* app_config, const char* primary_key, const char* fallback_key)
+{
+    std::string value = app_config->get(primary_key);
+    if (value.empty() && fallback_key) {
+        value = app_config->get(fallback_key);
+    }
+    return value;
+}
 
 std::string generate_uuid_for_setting_id(const std::string& name = "")
 {
@@ -264,14 +277,18 @@ int choose_loopback_port()
 {
     int base_port = auth_constants::LOOPBACK_PORT;
 
-    if (const char* env_port = std::getenv("ORCA_LOOPBACK_PORT")) {
+    const char* env_port = std::getenv("CROMACOLORS_LOOPBACK_PORT");
+    if (!env_port) {
+        env_port = std::getenv("ORCA_LOOPBACK_PORT");
+    }
+    if (env_port) {
         try {
             int parsed = std::stoi(env_port);
             if (parsed > 0 && parsed <= 65535) {
                 base_port = parsed;
             }
         } catch (...) {
-            BOOST_LOG_TRIVIAL(warning) << "OrcaCloudServiceAgent: invalid ORCA_LOOPBACK_PORT value, falling back to default";
+            BOOST_LOG_TRIVIAL(warning) << "OrcaCloudServiceAgent: invalid cloud loopback port value, falling back to default";
         }
     }
 
@@ -390,22 +407,22 @@ void OrcaCloudServiceAgent::configure_urls(AppConfig* app_config)
     // Read token storage preference
     m_use_encrypted_token_file = app_config->get_bool(SETTING_USE_ENCRYPTED_TOKEN_FILE);
 
-    std::string api_url = app_config->get(CONFIG_ORCA_API_URL);
+    std::string api_url = config_value(app_config, CONFIG_CROMACOLORS_API_URL, CONFIG_ORCA_API_URL);
     if (!api_url.empty()) {
         api_base_url = api_url;
     }
 
-    std::string auth_url = app_config->get(CONFIG_ORCA_AUTH_URL);
+    std::string auth_url = config_value(app_config, CONFIG_CROMACOLORS_AUTH_URL, CONFIG_ORCA_AUTH_URL);
     if (!auth_url.empty()) {
         auth_base_url = auth_url;
     }
 
-    std::string cloud_url = app_config->get(CONFIG_ORCA_CLOUD_URL);
+    std::string cloud_url = config_value(app_config, CONFIG_CROMACOLORS_CLOUD_URL, CONFIG_ORCA_CLOUD_URL);
     if (!cloud_url.empty()) {
         cloud_base_url = cloud_url;
     }
 
-    std::string pub_key = app_config->get(CONFIG_ORCA_PUB_KEY);
+    std::string pub_key = config_value(app_config, CONFIG_CROMACOLORS_PUB_KEY, CONFIG_ORCA_PUB_KEY);
     if (!pub_key.empty()) {
         auth_headers["apikey"] = pub_key;
     }
@@ -448,7 +465,7 @@ int OrcaCloudServiceAgent::init_log()
 int OrcaCloudServiceAgent::set_config_dir(std::string cfg_dir)
 {
     config_dir = cfg_dir;
-    wxFileName fallback(wxString::FromUTF8(cfg_dir.c_str()), "orca_refresh_token.sec");
+    wxFileName fallback(wxString::FromUTF8(cfg_dir.c_str()), "cromacolors_refresh_token.sec");
     fallback.Normalize();
     refresh_fallback_path = fallback.GetFullPath().ToStdString();
     return BAMBU_NETWORK_SUCCESS;

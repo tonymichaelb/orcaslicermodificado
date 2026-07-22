@@ -1,0 +1,39 @@
+{
+	"type": "filament",
+	"name": "Generic PETG @MeuPrinter",
+	"inherits": "Generic PETG @System",
+	"from": "system",
+	"setting_id": "GFL98_MEUPRINTER_0",
+	"filament_id": "GFL98",
+	"instantiation": "true",
+	"filament_cooling_final_speed": [
+		"3.0"
+	],
+	"filament_cooling_initial_speed": [
+		"8"
+	],
+	"filament_cooling_moves": [
+		"2"
+	],
+	"filament_load_time": [
+		"12.0"
+	],
+	"filament_loading_speed": [
+		"8"
+	],
+	"filament_loading_speed_start": [
+		"40"
+	],
+	"filament_unload_time": [
+		"10.0"
+	],
+	"filament_unloading_speed": [
+		"90"
+	],
+	"compatible_printers": [
+		"MeuPrinter 0.4 nozzle",
+		"MeuPrinter 0.2 nozzle",
+		"MeuPrinter 0.6 nozzle",
+		"MeuPrinter 0.8 nozzle"
+	]
+}

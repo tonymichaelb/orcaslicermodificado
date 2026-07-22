@@ -9,6 +9,7 @@ function OnInit()
     TranslatePage();
 
 	SendMsg_GetLoginInfo();
+	SendMsg_GetOrcaLoginInfo();
 	SendMsg_GetBambuLoginInfo();
 	SendMsg_GetRecentFile();
 	SendMsg_GetStaffPick();
@@ -166,6 +167,7 @@ function SetOrcaLoginInfo( strAvatar, strName )
 	$("#OrcaLogin1").hide();
 
 	$("#UserName").text(strName);
+	SetCloudOnline(strName);
 
     let OriginAvatar=$("#UserAvatarIcon").prop("src");
 	if(strAvatar != null && strAvatar.trim() !== '' && strAvatar!=OriginAvatar)
@@ -183,10 +185,26 @@ function SetOrcaUserOffline()
 {
 	$("#UserAvatarIcon").prop("src","img/c.jpg");
 	$("#UserName").text('');
+	SetCloudOffline();
 	$("#OrcaLogin2").hide();
 
 	$("#OrcaLogin1").show();
 	$("#OrcaLogin1").css("display","flex");
+}
+
+function SetCloudOnline(strName)
+{
+	let displayName = strName && strName.trim() !== '' ? strName : 'Conectado';
+	$("#CloudStatus").removeClass("offline").addClass("online").text("Online");
+	$("#CloudSubtitle").text("Conta conectada. Suas funcoes Cloud estao disponiveis.");
+	$("#CloudProfileName").text(displayName);
+}
+
+function SetCloudOffline()
+{
+	$("#CloudStatus").removeClass("online").addClass("offline").text("Offline");
+	$("#CloudSubtitle").text("Entre na sua conta para sincronizar perfis, projetos e impressoras.");
+	$("#CloudProfileName").text("Nao conectado");
 }
 
 function SetMallUrl( strUrl )
@@ -564,4 +582,3 @@ function OpenOneStaffPickModel( ModelID )
 
 //---------------Global-----------------
 window.postMessage = HandleStudio;
-

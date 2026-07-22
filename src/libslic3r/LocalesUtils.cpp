@@ -4,6 +4,8 @@
     #include <charconv>
 #endif
 #include <stdexcept>
+#include <sstream>
+#include <iomanip>
 
 #include <fast_float/fast_float.h>
 

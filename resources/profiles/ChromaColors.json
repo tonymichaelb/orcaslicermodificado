@@ -1,0 +1,40 @@
+{
+	"name": "ChromaColors",
+	"version": "02.03.02.71",
+	"force_update": "1",
+	"description": "ChromaColors printer configurations",
+	"machine_model_list": [
+		{
+			"name": "Tupana A1",
+			"sub_path": "machine/Tupana A1.json"
+		}
+	],
+	"process_list": [
+		{
+			"name": "fdm_process_common",
+			"sub_path": "process/fdm_process_common.json"
+		},
+		{
+			"name": "fdm_process_marlin_common",
+			"sub_path": "process/fdm_process_marlin_common.json"
+		},
+		{
+			"name": "0.2mm Extra Fine @ChromaColors Tupana A1",
+			"sub_path": "process/0.2mm Extra Fine @ChromaColors Tupana A1.json"
+		},
+		{
+			"name": "0.3mm Extra Fine @ChromaColors Tupana A1",
+			"sub_path": "process/0.3mm Extra Fine @ChromaColors Tupana A1.json"
+		}
+	],
+	"machine_list": [
+		{
+			"name": "fdm_machine_common",
+			"sub_path": "machine/fdm_machine_common.json"
+		},
+		{
+			"name": "Tupana A1 0.4 nozzle",
+			"sub_path": "machine/Tupana A1 0.4 nozzle.json"
+		}
+	]
+}

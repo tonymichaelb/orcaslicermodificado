@@ -58,18 +58,20 @@ bool View3D::init(wxWindow* parent, Bed3D& bed, Model* model, DynamicPrintConfig
     if (!Create(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 /* disable wxTAB_TRAVERSAL */))
         return false;
 
+    bool use_multisample = wxGetApp().app_config == nullptr ||
+                           !wxGetApp().app_config->get_bool("reduce_gpu_usage");
 #if ENABLE_OPENGL_AUTO_AA_SAMPLES
     const GUI_InitParams* const init_params = wxGetApp().init_params;
-    m_canvas_widget = OpenGLManager::create_wxglcanvas(*this, (init_params != nullptr) ? init_params->opengl_aa : false);
-#else
-    m_canvas_widget = OpenGLManager::create_wxglcanvas(*this);
+    use_multisample = use_multisample && init_params != nullptr && init_params->opengl_aa;
+#endif // ENABLE_OPENGL_AUTO_AA_SAMPLES
+    m_canvas_widget = OpenGLManager::create_wxglcanvas(*this, use_multisample);
     if (m_canvas_widget == nullptr)
         return false;
 
     m_canvas = new GLCanvas3D(m_canvas_widget, bed);
     m_canvas->set_context(wxGetApp().init_glcontext(*m_canvas_widget));
 
-    m_canvas->allow_multisample(OpenGLManager::can_multisample());
+    m_canvas->allow_multisample(use_multisample && OpenGLManager::can_multisample());
     // XXX: If have OpenGL
     m_canvas->enable_picking(true);
     m_canvas->get_selection().set_mode(Selection::Instance);
@@ -260,14 +262,15 @@ bool Preview::init(wxWindow* parent, Bed3D& bed, Model* model)
     SetBackgroundColour(GetParent()->GetBackgroundColour());
 #endif // _WIN32
 
-    m_canvas_widget = OpenGLManager::create_wxglcanvas(*this);
-#endif // ENABLE_OPENGL_AUTO_AA_SAMPLES
+    const bool use_multisample = wxGetApp().app_config == nullptr ||
+                                 !wxGetApp().app_config->get_bool("reduce_gpu_usage");
+    m_canvas_widget = OpenGLManager::create_wxglcanvas(*this, use_multisample);
     if (m_canvas_widget == nullptr)
         return false;
 
     m_canvas = new GLCanvas3D(m_canvas_widget, bed);
     m_canvas->set_context(wxGetApp().init_glcontext(*m_canvas_widget));
-    m_canvas->allow_multisample(OpenGLManager::can_multisample());
+    m_canvas->allow_multisample(use_multisample && OpenGLManager::can_multisample());
     m_canvas->set_config(m_config);
     m_canvas->set_model(model);
     m_canvas->set_process(m_process);
@@ -763,19 +766,20 @@ bool AssembleView::init(wxWindow* parent, Bed3D& bed, Model* model, DynamicPrint
     if (!Create(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 /* disable wxTAB_TRAVERSAL */))
         return false;
 
+    bool use_multisample = wxGetApp().app_config == nullptr ||
+                           !wxGetApp().app_config->get_bool("reduce_gpu_usage");
 #if ENABLE_OPENGL_AUTO_AA_SAMPLES
     const GUI_InitParams* const init_params = wxGetApp().init_params;
-    m_canvas_widget = OpenGLManager::create_wxglcanvas(*this, (init_params != nullptr) ? init_params->opengl_aa : false);
-#else
-    m_canvas_widget = OpenGLManager::create_wxglcanvas(*this);
+    use_multisample = use_multisample && init_params != nullptr && init_params->opengl_aa;
 #endif // ENABLE_OPENGL_AUTO_AA_SAMPLES
+    m_canvas_widget = OpenGLManager::create_wxglcanvas(*this, use_multisample);
     if (m_canvas_widget == nullptr)
         return false;
 
     m_canvas = new GLCanvas3D(m_canvas_widget, bed);
     m_canvas->set_context(wxGetApp().init_glcontext(*m_canvas_widget));
 
-    m_canvas->allow_multisample(OpenGLManager::can_multisample());
+    m_canvas->allow_multisample(use_multisample && OpenGLManager::can_multisample());
     // XXX: If have OpenGL
     m_canvas->enable_picking(true);
     m_canvas->enable_moving(true);

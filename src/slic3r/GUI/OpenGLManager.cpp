@@ -406,7 +406,7 @@ wxGLContext* OpenGLManager::init_glcontext(wxGLCanvas& canvas, const std::pair<i
     return m_context;
 }
 
-wxGLCanvas* OpenGLManager::create_wxglcanvas(wxWindow& parent)
+wxGLCanvas* OpenGLManager::create_wxglcanvas(wxWindow& parent, bool use_multisample)
 {
     int attribList[] = {
         WX_GL_RGBA,
@@ -432,8 +432,10 @@ wxGLCanvas* OpenGLManager::create_wxglcanvas(wxWindow& parent)
 //        std::cout << "Multisample " << (can_multisample() ? "enabled" : "disabled") << std::endl;
     }
 
-    if (! can_multisample())
-        attribList[12] = 0;
+    if (!can_multisample() || !use_multisample)
+        // Terminate the attribute list before the multisampling attributes,
+        // while preserving the stencil buffer used by object outlines.
+        attribList[14] = 0;
 
     wxGLCanvas* canvas = new wxGLCanvas(&parent, wxID_ANY, attribList, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);
     // The GL canvas paints its entire surface, so background erasing is unnecessary.

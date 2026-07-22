@@ -1,0 +1,30 @@
+{
+	"bottom_shell_layers": "3",
+	"enable_prime_tower": "1",
+	"from": "system",
+	"inherits": "fdm_process_marlin_common",
+	"initial_layer_speed": "25",
+	"is_custom_defined": "0",
+	"layer_height": "0.3",
+	"name": "0.3mm Extra Fine @ChromaColors Tupana A1",
+	"outer_wall_speed": "40",
+	"prime_tower_width": "30",
+	"print_settings_id": "0.3mm Extra Fine @ChromaColors Tupana A1",
+	"top_shell_layers": "3",
+	"version": "2.3.0.3",
+	"wipe_tower_bridging": "2",
+	"wipe_tower_max_purge_speed": "50",
+	"wipe_tower_no_sparse_layers": "1",
+	"setting_id": "GP901",
+	"instantiation": "true",
+	"compatible_printers": [
+		"Tupana A1 0.4 nozzle"
+	],
+	"type": "process",
+	"print_extruder_id": [
+		"1"
+	],
+	"print_extruder_variant": [
+		"Direct Drive Standard"
+	]
+}

@@ -215,6 +215,7 @@ function get_docker_runner_image() {
     sanitized_base_image=$(echo "${base_image}" | tr '/:@' '---' | tr -cs 'A-Za-z0-9_.-' '-')
     sanitized_cmake_version=$(echo "${docker_cmake_version:-system}" | tr -cs 'A-Za-z0-9_.-' '-')
     echo "orcaslicer-linux-builder:${sanitized_base_image}-cmake-${sanitized_cmake_version}-${recipe_hash}"
+    echo "chromacolors-linux-builder:${sanitized_base_image}-cmake-${sanitized_cmake_version}-${recipe_hash}"
 }
 
 function docker_runner_dockerfile() {
@@ -247,7 +248,7 @@ RUN if [[ -n "${CMAKE_VERSION}" ]] ; then \
             if ! curl -fsSL "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${cmake_arch}.tar.gz" | tar -xz -C /opt ; then \
                 echo "Warning: failed to install CMake ${CMAKE_VERSION}; falling back to the distro cmake package." ; \
             elif [[ -d "${cmake_root}" ]] ; then \
-                ln -sf "${cmake_root}/bin/"* /usr/local/bin/ ; \
+                ln -sf "${cmake_root}/bin/"* /usr/local/bin/ ; \ # Create symbolic links to the CMake binaries in /usr/local/bin
             fi ; \
         else \
             echo "Skipping GitHub Actions CMake install for unsupported architecture $(uname -m)." ; \
@@ -329,7 +330,7 @@ function run_in_docker() {
     host_uid=$(id -u)
     host_gid=$(id -g)
     host_user="${USER:-orca}"
-    container_workspace="/__w/OrcaSlicer/OrcaSlicer"
+    container_workspace="/__w/Chromacolors/Chromacolors"
     build_args=()
     for item in "${FORWARDED_ARGS[@]}" ; do
         if [[ "${item}" == "-u" ]] || [[ "${item}" == "-D" ]] ; then
@@ -386,13 +387,13 @@ function create_builder_user() {
     if getent group "${HOST_GID}" >/dev/null 2>&1 ; then
         HOST_GROUP=$(getent group "${HOST_GID}" | cut -d: -f1)
     else
-        HOST_GROUP="orca-builder"
+            HOST_GROUP="chromacolors-builder"
         if getent group "${HOST_GROUP}" >/dev/null 2>&1 ; then
-            HOST_GROUP="orca-builder-${HOST_GID}"
+                HOST_GROUP="chromacolors-builder-${HOST_GID}"
         fi
         groupadd -g "${HOST_GID}" "${HOST_GROUP}"
     fi
-
+    
     if getent passwd "${HOST_UID}" >/dev/null 2>&1 ; then
         HOST_USER=$(getent passwd "${HOST_UID}" | cut -d: -f1)
         usermod -g "${HOST_GROUP}" "${HOST_USER}"
@@ -402,7 +403,7 @@ function create_builder_user() {
         useradd -m -u "${HOST_UID}" -g "${HOST_GROUP}" -s /bin/bash "${HOST_USER}"
     fi
 
-    echo "${HOST_USER} ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/orcaslicer-builder
+    echo "${HOST_USER} ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/chromacolors-builder
     chmod 0440 /etc/sudoers.d/orcaslicer-builder
 }
 
@@ -515,7 +516,7 @@ fi
 
 if [[ -n "${BUILD_DEPS}" ]] ; then
     echo "Configuring dependencies..."
-    read -r -a BUILD_ARGS <<< "${DEPS_EXTRA_BUILD_ARGS}"
+    read -r -a BUILD_ARGS <<< "${DEPS_EXTRA_BUILD_ARGS}" # Read extra build arguments for dependencies
     if [[ -n "${CLEAN_BUILD}" ]]
     then
         print_and_run rm -fr deps/$BUILD_DIR
@@ -530,7 +531,7 @@ if [[ -n "${BUILD_DEPS}" ]] ; then
 fi
 
 if [[ -n "${BUILD_ORCA}" ]] || [[ -n "${BUILD_TESTS}" ]] ; then
-    echo "Configuring OrcaSlicer..."
+    echo "Configuring Chromacolors..."
     if [[ -n "${CLEAN_BUILD}" ]] ; then
         print_and_run rm -fr $BUILD_DIR
     fi
@@ -549,11 +550,11 @@ if [[ -n "${BUILD_ORCA}" ]] || [[ -n "${BUILD_TESTS}" ]] ; then
 -DSLIC3R_PCH=${SLIC3R_PRECOMPILED_HEADERS} \
 -DORCA_TOOLS=ON \
 "${COLORED_OUTPUT}" \
-"${BUILD_ARGS[@]}"
+"${BUILD_ARGS[@]}" # Pass all collected build arguments to CMake
     echo "done"
     if [[ -n "${BUILD_ORCA}" ]]; then
-	echo "Building OrcaSlicer ..."
-	print_and_run cmake --build $BUILD_DIR --config "${BUILD_CONFIG}" --target OrcaSlicer
+	echo "Building Chromacolors ..."
+	print_and_run cmake --build $BUILD_DIR --config "${BUILD_CONFIG}" --target Chromacolors
 	echo "Building OrcaSlicer_profile_validator .."
 	print_and_run cmake --build $BUILD_DIR --config "${BUILD_CONFIG}" --target OrcaSlicer_profile_validator
 	./scripts/run_gettext.sh

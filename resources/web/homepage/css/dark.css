@@ -133,3 +133,61 @@ body
 #BambuCloudHeader       { color: #818183; }
 #BambuCloudHeader:hover { color: #efeff0; }
 .bambu-chevron svg path { stroke: currentColor; }
+
+/*--- Cromacolors Cloud Board ---*/
+.CloudTitle,
+.CloudPanelValue
+{
+	color: #efeff0;
+}
+
+.CloudSubtitle,
+.CloudPanelTitle,
+.CloudPanelText
+{
+	color: #B3B3B5;
+}
+
+.CloudStatus.online
+{
+	background-color: #123F2C;
+	color: #9DF2B7;
+}
+
+.CloudStatus.offline
+{
+	background-color: #36363C;
+	color: #B3B3B5;
+}
+
+.CloudAction
+{
+	background-color: #36363C;
+	color: #efeff0;
+	border-color: #4C4C55;
+}
+
+.CloudActionPrimary
+{
+	background-color: #00675B;
+	border-color: #00675B;
+	color: #fff;
+}
+
+.CloudPanel
+{
+	background-color: #2C2C31;
+	border-color: #4C4C55;
+}
+
+.CloudPanelButton
+{
+	background-color: #223C3C;
+	color: #9DEFE6;
+}
+
+.CloudPanelButton.danger
+{
+	background-color: #4A2725;
+	color: #FFB4A8;
+}

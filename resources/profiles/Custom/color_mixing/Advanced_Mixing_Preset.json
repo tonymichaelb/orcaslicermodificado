@@ -1,0 +1,130 @@
+{
+	"type": "color_mixing",
+	"name": "Advanced Multi-Material Mixing",
+	"description": "Advanced color mixing preset with purge tower optimization and gradient support",
+	"version": "1.0",
+	"author": "OrcaSlicer",
+	"compatible_printers": [
+		"MeuPrinter 0.4 nozzle",
+		"MeuPrinter 0.6 nozzle"
+	],
+	"features": {
+		"purge_tower": true,
+		"color_gradient": true,
+		"smoothing": true,
+		"temperature_adjustment": true,
+		"flow_compensation": true
+	},
+	"presets": [
+		{
+			"id": "preset_smooth_gradient",
+			"name": "Smooth Color Gradient",
+			"description": "Creates smooth color transitions with minimal banding",
+			"filaments": [
+				"Generic PLA @MeuPrinter",
+				"Generic PETG @MeuPrinter"
+			],
+			"settings": {
+				"purge_tower": {
+					"enabled": true,
+					"position": "back",
+					"base_length": 200.0,
+					"width": 60.0,
+					"infill_density": 100,
+					"material_savings_mode": false
+				},
+				"transition": {
+					"type": "gradient",
+					"length": 100.0,
+					"smoothing_passes": 3,
+					"acceleration": 1.0
+				},
+				"temperature_curve": {
+					"start_temp": 210,
+					"end_temp": 220,
+					"steps": 5
+				},
+				"flow_compensation": {
+					"enabled": true,
+					"factor": 1.0
+				}
+			}
+		},
+		{
+			"id": "preset_fast_color_change",
+			"name": "Fast Color Change",
+			"description": "Quick color transitions optimized for speed",
+			"filaments": [
+				"Generic PETG @MeuPrinter",
+				"Generic ABS @MeuPrinter"
+			],
+			"settings": {
+				"purge_tower": {
+					"enabled": true,
+					"position": "side",
+					"base_length": 100.0,
+					"width": 40.0,
+					"infill_density": 50,
+					"material_savings_mode": true
+				},
+				"transition": {
+					"type": "linear",
+					"length": 50.0,
+					"smoothing_passes": 1,
+					"acceleration": 2.0
+				},
+				"temperature_curve": {
+					"start_temp": 230,
+					"end_temp": 240,
+					"steps": 2
+				},
+				"flow_compensation": {
+					"enabled": true,
+					"factor": 0.95
+				}
+			}
+		},
+		{
+			"id": "preset_eco_mode",
+			"name": "Eco Mode (Material Saving)",
+			"description": "Minimizes purge tower waste while maintaining quality",
+			"filaments": [
+				"Generic PLA @MeuPrinter"
+			],
+			"settings": {
+				"purge_tower": {
+					"enabled": true,
+					"position": "corner",
+					"base_length": 50.0,
+					"width": 30.0,
+					"infill_density": 25,
+					"material_savings_mode": true
+				},
+				"transition": {
+					"type": "minimal",
+					"length": 25.0,
+					"smoothing_passes": 0,
+					"acceleration": 3.0
+				},
+				"temperature_curve": {
+					"start_temp": 200,
+					"end_temp": 210,
+					"steps": 1
+				},
+				"flow_compensation": {
+					"enabled": false,
+					"factor": 1.0
+				}
+			}
+		}
+	],
+	"advanced_options": {
+		"retraction_on_color_change": true,
+		"retraction_length": 5.0,
+		"z_hop_on_color_change": 1.0,
+		"purge_speed": 30.0,
+		"color_change_gcode": "M600",
+		"custom_start_gcode": "",
+		"custom_end_gcode": ""
+	}
+}

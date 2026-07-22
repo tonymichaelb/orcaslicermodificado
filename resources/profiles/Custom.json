@@ -19,6 +19,10 @@
 		{
 			"name": "Generic ToolChanger Printer",
 			"sub_path": "machine/MyToolChanger.json"
+		},
+		{
+			"name": "MeuPrinter",
+			"sub_path": "machine/MeuPrinter.json"
 		}
 	],
 	"process_list": [
@@ -169,6 +173,18 @@
 		{
 			"name": "0.56mm Standard @MyToolChanger",
 			"sub_path": "process/0.56mm Extra Draft @MyToolChanger.json"
+		},
+		{
+			"name": "0.12mm Fine @MeuPrinter",
+			"sub_path": "process/0.12mm Fine @MeuPrinter.json"
+		},
+		{
+			"name": "0.20mm Standard @MeuPrinter",
+			"sub_path": "process/0.20mm Standard @MeuPrinter.json"
+		},
+		{
+			"name": "0.28mm Draft @MeuPrinter",
+			"sub_path": "process/0.28mm Draft @MeuPrinter.json"
 		}
 	],
 	"filament_list": [
@@ -211,6 +227,18 @@
 		{
 			"name": "Generic TPU @MyToolChanger",
 			"sub_path": "filament/Generic TPU @MyToolChanger.json"
+		},
+		{
+			"name": "Generic PLA @MeuPrinter",
+			"sub_path": "filament/Generic PLA @MeuPrinter.json"
+		},
+		{
+			"name": "Generic PETG @MeuPrinter",
+			"sub_path": "filament/Generic PETG @MeuPrinter.json"
+		},
+		{
+			"name": "Generic ABS @MeuPrinter",
+			"sub_path": "filament/Generic ABS @MeuPrinter.json"
 		}
 	],
 	"machine_list": [
@@ -269,6 +297,22 @@
 		{
 			"name": "MyToolChanger 0.8 nozzle",
 			"sub_path": "machine/MyToolChanger 0.8 nozzle.json"
+		},
+		{
+			"name": "MeuPrinter 0.2 nozzle",
+			"sub_path": "machine/MeuPrinter 0.2 nozzle.json"
+		},
+		{
+			"name": "MeuPrinter 0.4 nozzle",
+			"sub_path": "machine/MeuPrinter 0.4 nozzle.json"
+		},
+		{
+			"name": "MeuPrinter 0.6 nozzle",
+			"sub_path": "machine/MeuPrinter 0.6 nozzle.json"
+		},
+		{
+			"name": "MeuPrinter 0.8 nozzle",
+			"sub_path": "machine/MeuPrinter 0.8 nozzle.json"
 		}
 	]
 }
