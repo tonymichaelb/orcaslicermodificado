@@ -98,22 +98,67 @@ std::map<std::string, std::vector<SimpleSettingData>>  SettingsFactory::OBJECT_C
                   }}
 };
 
-std::map<std::string, std::vector<SimpleSettingData>>  SettingsFactory::PART_CATEGORY_SETTINGS=
-{
-    { L("Quality"), {{"ironing_type", "",8},{"ironing_flow", "",9},{"ironing_spacing", "",10},{"ironing_inset", "", 11},{"bridge_flow", "",11},{"make_overhang_printable", "",11},{"bridge_density", "", 1}
-                    }},
-    { L("Strength"), {{"wall_loops", "",1},{"top_shell_layers", L("Top Solid Layers"),1},{"top_shell_thickness", L("Top Minimum Shell Thickness"),1},{"top_surface_density", L("Top Surface Density"),1},
-                    {"bottom_shell_layers", L("Bottom Solid Layers"),1}, {"bottom_shell_thickness", L("Bottom Minimum Shell Thickness"),1},{"bottom_surface_density", L("Bottom Surface Density"),1},
-                    {"sparse_infill_density", "",1},{"sparse_infill_pattern", "",1},{"lateral_lattice_angle_1", "",1},{"lateral_lattice_angle_2", "",1},{"infill_overhang_angle", "",1},{"infill_anchor", "",1},{"infill_anchor_max", "",1},{"top_surface_pattern", "",1},{"bottom_surface_pattern", "",1}, {"internal_solid_infill_pattern", "",1},
-                    {"align_infill_direction_to_model", "", 1},
-                    {"extra_solid_infills", "", 1},
-                    {"infill_combination", "",1}, {"infill_combination_max_layer_height", "",1}, {"infill_wall_overlap", "",1},{"top_bottom_infill_wall_overlap", "",1}, {"solid_infill_direction", "",1}, {"infill_direction", "",1}, {"bridge_angle", "",1}, {"internal_bridge_angle", "",1}, {"minimum_sparse_infill_area", "",1}
-                    }},
-    { L("Speed"), {{"outer_wall_speed", "",1},{"inner_wall_speed", "",2},{"sparse_infill_speed", "",3},{"top_surface_speed", "",4}, {"internal_solid_infill_speed", "",5},
-                    {"enable_overhang_speed", "",6}, {"overhang_1_4_speed", "",7}, {"overhang_2_4_speed", "",8}, {"overhang_3_4_speed", "",9}, {"overhang_4_4_speed", "",10},
-                    {"bridge_speed", "",11}, {"gap_infill_speed", "",12}, {"internal_bridge_speed", "", 13}
-                    }}
-};
+std::map<std::string, std::vector<SimpleSettingData>> SettingsFactory::PART_CATEGORY_SETTINGS =
+    {{L("Quality"),
+      {{"ironing_type", "", 8},
+       {"ironing_flow", "", 9},
+       {"ironing_spacing", "", 10},
+       {"ironing_inset", "", 11},
+       {"bridge_flow", "", 11},
+       {"make_overhang_printable", "", 11},
+       {"bridge_density", "", 1},
+       {"ironing_expansion", "", 14},
+       {"zaa_enabled", "", 1},
+       {"zaa_minimize_perimeter_height", "", 2},
+       {"zaa_dont_alternate_fill_direction", "", 3},
+       {"zaa_min_z", "", 4}}},
+     {L("Strength"),
+      {{"wall_loops", "", 1},
+       {"top_shell_layers", L("Top Solid Layers"), 1},
+       {"top_shell_thickness", L("Top Minimum Shell Thickness"), 1},
+       {"top_surface_density", L("Top Surface Density"), 1},
+       {"bottom_shell_layers", L("Bottom Solid Layers"), 1},
+       {"bottom_shell_thickness", L("Bottom Minimum Shell Thickness"), 1},
+       {"bottom_surface_density", L("Bottom Surface Density"), 1},
+       {"sparse_infill_density", "", 1},
+       {"fill_multiline", "", 1},
+       {"sparse_infill_pattern", "", 1},
+       {"lateral_lattice_angle_1", "", 1},
+       {"lateral_lattice_angle_2", "", 1},
+       {"infill_overhang_angle", "", 1},
+       {"lightning_overhang_angle", "", 1},
+       {"lightning_prune_angle", "", 1},
+       {"lightning_straightening_angle", "", 1},
+       {"infill_anchor", "", 1},
+       {"infill_anchor_max", "", 1},
+       {"top_surface_pattern", "", 1},
+       {"bottom_surface_pattern", "", 1},
+       {"internal_solid_infill_pattern", "", 1},
+       {"align_infill_direction_to_model", "", 1},
+       {"extra_solid_infills", "", 1},
+       {"infill_combination", "", 1},
+       {"infill_combination_max_layer_height", "", 1},
+       {"infill_wall_overlap", "", 1},
+       {"top_bottom_infill_wall_overlap", "", 1},
+       {"solid_infill_direction", "", 1},
+       {"infill_direction", "", 1},
+       {"bridge_angle", "", 1},
+       {"internal_bridge_angle", "", 1},
+       {"minimum_sparse_infill_area", "", 1}}},
+     {L("Speed"),
+      {{"outer_wall_speed", "", 1},
+       {"inner_wall_speed", "", 2},
+       {"sparse_infill_speed", "", 3},
+       {"top_surface_speed", "", 4},
+       {"internal_solid_infill_speed", "", 5},
+       {"enable_overhang_speed", "", 6},
+       {"overhang_1_4_speed", "", 7},
+       {"overhang_2_4_speed", "", 8},
+       {"overhang_3_4_speed", "", 9},
+       {"overhang_4_4_speed", "", 10},
+       {"bridge_speed", "", 11},
+       {"gap_infill_speed", "", 12},
+       {"internal_bridge_speed", "", 13}}}};
 
 std::vector<std::string> SettingsFactory::get_options(const bool is_part)
 {
@@ -531,39 +576,47 @@ wxMenu* MenuFactory::append_submenu_add_generic(wxMenu* menu, ModelVolumeType ty
 wxMenu* MenuFactory::append_submenu_add_handy_model(wxMenu* menu, ModelVolumeType type) {
     auto sub_menu = new wxMenu;
 
-    for (auto &item : {L("Orca Cube"), L("Orca Tolerance Test"), L("3DBenchy"), L("Cali Cat"), L("Autodesk FDM Test"),
-                       L("Voron Cube"), L("Stanford Bunny"), L("Orca String Hell") }) {
+    // Orca: handy models shipped under <resources>/handy_models. Defining everything in one table
+    // keeps the menu label, the files to load and the per-model behavior in a single place and
+    // avoids repeating the label strings (and the value-vs-pointer comparison pitfalls that come
+    // with that). Labels are wrapped in L() so they are picked up for translation.
+    struct HandyModel
+    {
+        const char*              label;
+        std::vector<std::string> file_names;
+        bool                     arrange_after_import = false;
+        bool                     is_stringhell        = false;
+    };
+    static const std::vector<HandyModel> handy_models = {
+        {L("Orca Cube"),           {"OrcaCube_v2.drc", "OrcaPlug_v2.drc"},                    true},
+        {L("OrcaSliced Combo"),    {"OrcaSliced.3mf", "OrcaCube_v2.drc", "OrcaPlug_v2.drc"},  true},
+        {L("Orca Tolerance Test"), {"OrcaToleranceTest.drc"}},
+        {L("3DBenchy"),            {"3DBenchy.drc"}},
+        {L("Cali Cat"),            {"calicat.drc"}},
+        {L("Autodesk FDM Test"),   {"ksr_fdmtest_v4.drc"}},
+        {L("Voron Cube"),          {"Voron_Design_Cube_v7.drc"}},
+        {L("Stanford Bunny"),      {"Stanford_Bunny.drc"}},
+        {L("Orca String Hell"),    {"Orca_stringhell.drc"},                                   false, true},
+    };
+
+    for (const auto& model : handy_models) {
         append_menu_item(
-            sub_menu, wxID_ANY, _(item), "",
-            [type, item](wxCommandEvent&) {
+            sub_menu, wxID_ANY, _(model.label), "",
+            [&model](wxCommandEvent&) {
                 std::vector<boost::filesystem::path> input_files;
-                bool                                 is_stringhell = false;
-                std::string                          file_name     = item;
-                if (file_name == L("Orca Cube"))
-                    file_name = "OrcaCube_v2.3mf";
-                else if (file_name == L("Orca Tolerance Test"))
-                    file_name = "OrcaToleranceTest.drc";
-                else if (file_name == L("3DBenchy"))
-                    file_name = "3DBenchy.drc";
-                else if (file_name == L("Cali Cat"))
-                    file_name = "calicat.drc";
-                else if (file_name == L("Autodesk FDM Test"))
-                    file_name = "ksr_fdmtest_v4.drc";
-                else if (file_name == L("Voron Cube"))
-                    file_name = "Voron_Design_Cube_v7.drc";
-                else if (file_name == L("Stanford Bunny"))
-                    file_name = "Stanford_Bunny.drc";
-                else if (file_name == L("Orca String Hell")) {
-                    file_name     = "Orca_stringhell.drc";
-                    is_stringhell = true;
-                } else
-                    return;
-                input_files.push_back((boost::filesystem::path(Slic3r::resources_dir()) / "handy_models" / file_name));
+                input_files.reserve(model.file_names.size());
+                for (const auto& file_name : model.file_names)
+                    input_files.push_back((boost::filesystem::path(Slic3r::resources_dir()) / "handy_models" / file_name));
+
                 plater()->load_files(input_files, LoadStrategy::LoadModel);
+                if (model.arrange_after_import) {
+                    plater()->set_prepare_state(Job::PREPARE_STATE_MENU);
+                    plater()->arrange();
+                }
 
                 // Suggest to change settings for stringhell
                 // This serves as mini tutorial for new users
-                if (is_stringhell) {
+                if (model.is_stringhell) {
                     wxGetApp().CallAfter([=] {
                         DynamicPrintConfig* m_config = &wxGetApp().preset_bundle->prints.get_edited_preset().config;
 
@@ -1192,7 +1245,7 @@ void MenuFactory::append_menu_items_convert_unit(wxMenu* menu)
 
 void MenuFactory::append_menu_item_merge_to_multipart_object(wxMenu* menu)
 {
-    append_menu_item(menu, wxID_ANY, _L("Assemble"), _L("Assemble the selected objects to an object with multiple parts"),
+    append_menu_item(menu, wxID_ANY, _L("Assemble"), _L("Assemble the selected objects into an object with multiple parts"),
         [](wxCommandEvent&) { obj_list()->merge(true); }, "", menu,
         []() { return obj_list()->can_merge_to_multipart_object(); }, m_parent);
 }
@@ -1200,7 +1253,7 @@ void MenuFactory::append_menu_item_merge_to_multipart_object(wxMenu* menu)
 void MenuFactory::append_menu_item_merge_to_single_object(wxMenu* menu)
 {
     menu->AppendSeparator();
-    append_menu_item(menu, wxID_ANY, _L("Assemble"), _L("Assemble the selected objects to an object with single part"),
+    append_menu_item(menu, wxID_ANY, _L("Assemble"), _L("Assemble the selected objects into an object with single part"),
         [](wxCommandEvent&) { obj_list()->merge(false); }, "", menu,
         []() { return obj_list()->can_merge_to_single_object(); }, m_parent);
 }
@@ -1603,17 +1656,6 @@ void MenuFactory::create_filament_action_menu(bool init, int active_filament_men
             []() { return true; }, m_parent);
     }
 
-    if (init) {
-        append_menu_item(
-            menu, wxID_ANY, _L("Delete"), _L("Delete this filament"), [](wxCommandEvent&) {
-                plater()->sidebar().delete_filament(-2); }, "", nullptr,
-            []() {
-                return plater()->sidebar().combos_filament().size() > 1
-                    // Orca: only show delete filament option for SEMM machines unless is BBL
-                    && Sidebar::should_show_SEMM_buttons();
-            }, m_parent);
-    }
-
     const int item_id = menu->FindItem(_L("Merge with"));
     if (item_id != wxNOT_FOUND)
         menu->Destroy(item_id);
@@ -1634,6 +1676,20 @@ void MenuFactory::create_filament_action_menu(bool init, int active_filament_men
     }
     append_submenu(menu, sub_menu, wxID_ANY, _L("Merge with"), "", "",
         [filaments_cnt]() { return filaments_cnt > 1; }, m_parent);
+
+    // ORCA use delete item on end of menu to prevent accidental clicks. clicking to submenus(merge) already not allowed by OS
+    const int delete_id = menu->FindItem(_L("Delete"));
+    if (delete_id != wxNOT_FOUND)
+        menu->Destroy(delete_id);
+    
+    append_menu_item(
+        menu, wxID_ANY, _L("Delete"), _L("Delete this filament"), [](wxCommandEvent&) {
+            plater()->sidebar().delete_filament(-2); }, "", nullptr,
+        []() {
+            return plater()->sidebar().combos_filament().size() > 1
+                // Orca: only show delete filament option for SEMM machines unless is BBL
+                && Sidebar::should_show_SEMM_buttons();
+        }, m_parent);
 }
 
 //BBS: add part plate related logic
@@ -2074,7 +2130,7 @@ void MenuFactory::append_menu_item_drop(wxMenu* menu)
             if (plater()->canvas3D()->get_canvas_type() != GLCanvas3D::ECanvasType::CanvasView3D)
                 return false;
             else {
-                return (plater()->get_view3D_canvas3D()->get_selection().get_bounding_box().min.z() > SINKING_Z_THRESHOLD);
+                return (std::abs(plater()->get_view3D_canvas3D()->get_selection().get_bounding_box().min.z()) > -SINKING_Z_THRESHOLD);
             } //disable if model is on the bed / not in View3D
         }, m_parent);
 }
